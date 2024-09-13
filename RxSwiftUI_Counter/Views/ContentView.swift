@@ -7,24 +7,17 @@
 
 import SwiftUI
 
-/// The main view that displays the current counter value and allows the user to start, stop, and reset the counter
-/// using buttons.
+/// Displays the current counter value and allows the user to start, stop, and reset the counter.
 struct ContentView: View {
-    /// Tracks whether the counter is currently running.
     @State private var isRunning = false
-
-    /// Binds the counter relay from the view model to the SwiftUI view.
+    var viewModel: ViewModel
     @RxRelay private var counterRelay: Int
 
-    /// The view model that manages the counter logic.
-    private let viewModel = ContentViewModel()
-
-    /// Initializes the `ContentView` and sets up the relay binding.
-    init() {
-        _counterRelay = RxRelay(relay: viewModel.counterRelay) // Bind to the counter relay from the view model.
+    init(viewModel: ViewModel) {
+        self.viewModel = viewModel
+        _counterRelay = RxRelay(relay: viewModel.counterRelay, disposeBag: SubscriptionsManager.shared.disposeBag)
     }
 
-    /// The body of the view, containing the current counter and control buttons.
     var body: some View {
         VStack {
             Text("\(counterRelay)")
@@ -55,24 +48,25 @@ struct ContentView: View {
                 .opacity(isRunning ? 0.5 : 1.0)
             }
         }
+        .onDisappear {
+            viewModel.stopCounter()
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
         .ignoresSafeArea()
     }
 
-    /// Toggles the counter between running and stopped, and updates the button label.
     private func toggleCounter() {
         viewModel.toggleCounter()
-        isRunning.toggle() // Toggle the running state.
+        isRunning.toggle()
     }
 
-    /// Resets the counter value to 0 and updates the start/stop button to "Start".
     private func resetCounter() {
         viewModel.resetCounter()
-        isRunning = false // Set isRunning to false after resetting.
+        isRunning = false
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(viewModel: ViewModel())
 }

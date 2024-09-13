@@ -1,20 +1,22 @@
+
 # RxSwift Counter with SwiftUI
 
 This project provides an example of how to integrate **RxSwift** with **SwiftUI** in a more declarative and idiomatic way, using a custom property wrapper to streamline the reactive binding.
 
 The app features a counter that starts at `0` and increments every second while running. You can start/stop the counter, and reset it to `0` when it's not running.
 
-Additionally, a **ParentView** is included to show how the subscription is canceled when the `ContentView` is dismissed.
+Additionally, the project includes a **SubscriptionsManager** to centralize subscription management, ensuring the proper lifecycle of RxSwift subscriptions. A **ParentView** is included to demonstrate that when the parent view is rerendered, the subscription continues to work as expected.
 
 ---
 
 ### Project Structure
 
 The project consists of:
-1. **`ContentViewModel`**: Manages the logic of the counter using RxSwift, including starting, stopping, and resetting the counter.
+1. **`ViewModel`**: Manages the logic of the counter using RxSwift, including starting, stopping, and resetting the counter.
 2. **`RxRelay` Property Wrapper**: This custom property wrapper simplifies binding a `BehaviorRelay` from RxSwift to a SwiftUI view.
-3. **`ContentView`**: The SwiftUI view displaying the current counter and controls for toggling and resetting.
-4. **`ParentView`**: Demonstrates the behavior when the `ContentView` is shown or dismissed.
+3. **`SubscriptionsManager`**: A singleton that centrally manages all subscriptions, ensuring that they are properly handled even when views are rerendered or dismissed.
+4. **`ContentView`**: The SwiftUI view displaying the current counter and controls for toggling and resetting.
+5. **`ParentView`**: Demonstrates the behavior when the `ContentView` is shown, dismissed, or rerendered.
 
 ---
 
@@ -67,7 +69,7 @@ import RxCocoa
 struct ContentViewWithoutWrapper: View {
     @State private var counter: Int = 0
 
-    private let viewModel = ContentViewModel()
+    private let viewModel = ViewModel()
     private let disposeBag = DisposeBag()
 
     init() {
@@ -98,7 +100,7 @@ By using the custom `RxRelay` property wrapper, we can avoid the manual subscrip
 @RxRelay var counterRelay: Int
 
 init() {
-    _counterRelay = RxRelay(relay: viewModel.counterRelay)
+    _counterRelay = RxRelay(relay: viewModel.counterRelay, disposeBag: SubscriptionsManager.shared.disposeBag)
 }
 ```
 

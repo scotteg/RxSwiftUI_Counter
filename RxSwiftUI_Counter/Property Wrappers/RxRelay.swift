@@ -20,10 +20,10 @@ struct RxRelay<Value>: DynamicProperty {
     @State private var isSubscribed = false
 
     /// The `BehaviorRelay` that emits values.
-    private var relay: BehaviorRelay<Value>
+    private let relay: BehaviorRelay<Value>
 
-    /// The `DisposeBag` that manages the subscription's lifecycle.
-    private var disposeBag = DisposeBag()
+    /// The externally managed `DisposeBag`.
+    private let disposeBag: DisposeBag
 
     /// The wrapped value for this property wrapper.
     var wrappedValue: Value {
@@ -34,28 +34,31 @@ struct RxRelay<Value>: DynamicProperty {
         }
     }
 
-    /// Initializes the `RxRelay` with a `BehaviorRelay`.
-    /// - Parameter relay: The `BehaviorRelay` to bind to.
-    init(relay: BehaviorRelay<Value>) {
+    /// Initializes the `RxRelay` with a `BehaviorRelay` and an externally managed `DisposeBag`.
+    init(relay: BehaviorRelay<Value>, disposeBag: DisposeBag) {
         self.relay = relay
+        self.disposeBag = disposeBag
         _value = State(initialValue: relay.value) // Initialize with the relay's current value.
     }
 
     /// Called automatically by SwiftUI to keep the property wrapper in sync with the relay's values.
     func update() {
-        guard !isSubscribed else { return }
+        if !isSubscribed {
+            subscribeToRelay()
+        }
+    }
 
+    /// Subscribes to the relay and ensures the subscription is properly managed.
+    private func subscribeToRelay() {
         relay
             .observe(on: MainScheduler.instance) // Ensure updates happen on the main thread.
             .subscribe(onNext: { newValue in
-                // Set outside of SwiftUI's view update cycle.
                 DispatchQueue.main.async {
                     value = newValue
                 }
             })
-            .disposed(by: disposeBag) // Automatically clean up the subscription when no longer needed.
+            .disposed(by: disposeBag)
 
-        // Mark as subscribed to prevent multiple subscriptions, outside the update cycle.
         DispatchQueue.main.async {
             isSubscribed = true
         }
