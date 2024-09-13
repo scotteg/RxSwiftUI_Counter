@@ -4,6 +4,8 @@ This project provides an example of how to integrate **RxSwift** with **SwiftUI*
 
 The app features a counter that starts at `0` and increments every second while running. You can start/stop the counter, and reset it to `0` when it's not running.
 
+Additionally, a **ParentView** is included to show how the subscription is canceled when the `ContentView` is dismissed.
+
 ---
 
 ### Project Structure
@@ -12,6 +14,7 @@ The project consists of:
 1. **`ContentViewModel`**: Manages the logic of the counter using RxSwift, including starting, stopping, and resetting the counter.
 2. **`RxRelay` Property Wrapper**: This custom property wrapper simplifies binding a `BehaviorRelay` from RxSwift to a SwiftUI view.
 3. **`ContentView`**: The SwiftUI view displaying the current counter and controls for toggling and resetting.
+4. **`ParentView`**: Demonstrates the behavior when the `ContentView` is shown or dismissed.
 
 ---
 

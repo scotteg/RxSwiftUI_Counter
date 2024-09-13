@@ -11,7 +11,7 @@ import SwiftUI
 struct RxSwiftUI_CounterApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ParentView()
         }
     }
 }
