@@ -10,8 +10,10 @@ import SwiftUI
 /// Displays the current counter value and allows the user to start, stop, and reset the counter.
 struct ContentView: View {
     @State private var isRunning = false
-    var viewModel: ViewModel
+
     @RxRelay private var counterRelay: Int
+
+    private let viewModel: ViewModel
 
     init(viewModel: ViewModel) {
         self.viewModel = viewModel

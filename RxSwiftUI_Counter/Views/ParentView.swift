@@ -11,7 +11,8 @@ import SwiftUI
 struct ParentView: View {
     @State private var showCounter = false
     @State private var parentUpdateCounter = 0
-    private var viewModel = ViewModel()
+
+    private let viewModel = ViewModel()
 
     var body: some View {
         VStack {
